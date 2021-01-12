@@ -1,42 +1,37 @@
-const canvas = document.getElementById('canvas')
-const ctx = canvas.getContext('2d')
+const adjust = (n) => (f) => (xs) => mapi((x) => (i) => (i == n ? f(x) : x))(xs)
+const dropFirst = (xs) => xs.slice(1)
+const dropLast = (xs) => xs.slice(0, xs.length - 1)
+const id = (x) => x
+const k = (x) => (y) => x
+const map = (f) => (xs) => xs.map(f)
+const mapi = (f) => (xs) => xs.map((x, i) => f(x)(i))
+const merge = (o1) => (o2) => Object.assign({}, o1, o2)
+const mod = (x) => (y) => ((y % x) + x) % x // http://bit.ly/2oF4mQ7
+const objOf = (k) => (v) => ({ [k]: v })
+const pipe = (...fns) => (x) => [...fns].reduce((acc, f) => f(acc), x)
+const prop = (k) => (o) => o[k]
+const range = (n) => (m) => Array.apply(null, Array(m - n)).map((_, i) => n + i)
+const rep = (c) => (n) => map(k(c))(range(0)(n))
+const rnd = (min) => (max) => Math.floor(Math.random() * max) + min
+const spec = (o) => (x) =>
+    Object.keys(o)
+        .map((k) => objOf(k)(o[k](x)))
+        .reduce((acc, o) => Object.assign(acc, o))
 
-let state = initalState()
-
-const x = (c) => Math.round((c * canvas.width) / state.cols)
-const y = (r) => Math.round((r * canvas.height) / state.rows)
-
-const draw = () => {
-    //clear
-    ctx.fillStyle = '#232323'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    //draw snake
-    ctx.fillStyle = 'rgb(0,200,50)'
-    state.snake.map((p) => ctx.fillRect(x(p.x), y(p.y), x(1), y(1)))
-
-    //draw apples
-    ctx.fillStyle = 'rgb(255, 50, 0)'
-    ctx.fillRect(x(state.apple.x), y(state.apple.y), x(1), y(1))
-
-    //add crash
-    if (state.snake.length === 0) {
-        ctx.fillStyle = 'rgb(255,50,0)'
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
+module.exports = {
+    adjust,
+    dropFirst,
+    dropLast,
+    id,
+    k,
+    map,
+    merge,
+    mod,
+    objOf,
+    pipe,
+    prop,
+    range,
+    rep,
+    rnd,
+    spec,
 }
-
-const step = (t1) => {
-    return (t2) => {
-        if (t2 - t1 > 100) {
-            state = next(state)
-            draw()
-            window.requestAnimationFrame(step(t2))
-        } else {
-            window.requestAnimationFrame(step(t1))
-        }
-    }
-}
-
-draw()
-window.requestAnimationFrame(step(0))
